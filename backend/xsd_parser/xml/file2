@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <rider>
+        <Column1>Mike</Column1>
+        <Column_1st_session>5</Column_1st_session>
+        <Column_2nd_session>10</Column_2nd_session>
+        <Column_3rd_session>8</Column_3rd_session>
+    </rider>
+    <rider>
+        <Column1>John</Column1>
+        <Column_1st_session>5</Column_1st_session>
+        <Column_2nd_session>9</Column_2nd_session>
+        <Column_3rd_session>8</Column_3rd_session>
+    </rider>
+    <rider>
+        <Column1>Lea</Column1>
+        <Column_1st_session>4</Column_1st_session>
+        <Column_2nd_session>9</Column_2nd_session>
+        <Column_3rd_session>8</Column_3rd_session>
+    </rider>
+</Results>
