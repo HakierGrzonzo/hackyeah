@@ -20,7 +20,7 @@ def extensionRepairBulk(dir,files):
          
 def extensionRepair(dir,f):
     p = Path(join(dir,f))
-    x=(f,mime.from_file(p))
+    x=(f,mime.from_file(join(dir,f))
     if((os.path.splitext(join(dir,f))[1]) not in ext):
         z=x[1].split("/")[1]
         if ('.'+z) not in ext:
