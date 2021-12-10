@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
+listOfXsdTypes = ['application/octet-stream','text/xml']
 def downloadXSD(baseUrl,linkUrl):
     if linkUrl[0]=='.' or linkUrl[0] == '/':
         linkUrl = urljoin(baseUrl,linkUrl)
@@ -12,7 +13,18 @@ def downloadXSD(baseUrl,linkUrl):
     r = requests.get(linkUrl)
 
     if r.status_code == 200 or r.status_code == 202:
-        return r.text;
+        if r.headers['content-type'] in listOfXsdTypes:
+            return r.text
+        else:
+            print("we need to go deeper")
+            soup = BeautifulSoup(r.text)#,features='lxlm')
+            results = []
+            for link in soup.findAll('a'):
+                try:
+                    results.append(downloadXSD(linkUrl,link.get('href')))
+                except:
+                    print("failed to download schema", linkUrl ," : ",link.get('href'))
+        return results;
 
 def downloadSchemas(filepath):
 
@@ -22,9 +34,7 @@ def downloadSchemas(filepath):
     for name in  namespaces:
         r = requests.get(namespaces[name])
         if r.status_code == 200 or r.status_code == 202:
-            soup = BeautifulSoup(r.text);
-            for link in soup.findAll('a'):
-                schemas[name] = (downloadXSD(namespaces[name],link.get('href')))
+            downloadXSD("",namespaces[name])
         else:
             print ("Error downloading schema: ",namespaces[name])
 
