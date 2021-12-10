@@ -6,9 +6,12 @@ from pathlib import Path
 ext =[ '.txt', '.rtf', '.pdf', '.xps', '.odt', '.ods', '.odp', '.doc', '.xls', '.ppt', '.docx', '.xlsx', '.pptx', '.csv', '.jpg', '.tif', 
 '.geotif', '.png', '.svg', '.wav', '.mp3', '.avi', '.mpg', '.mp4', '.ogg', '.ogv', '.zip', '.tar', '.gz', '.7Z', '.html','.xhtml', '.css', 
 '.xml', '.xsd','gml', '.rng', '.xsl', '.xslt','TSL', 'XMLsig', 'XAdES', 'PAdeES', 'CAdES', 'ASIC','XMLenc']
-
-mime= magic.Magic(mime=True)
-
+alt = {
+    'spreadsheet':'.xls',
+    'presentation':'.ppt',
+    'plain':'.txt',
+    'jpeg':'.jpg',
+}
 def extensionRepairSingle(dir,f):
     extensionRepair(dir,f)
 
@@ -19,18 +22,12 @@ def extensionRepairBulk(dir,files):
          print(dir,f)
          
 def extensionRepair(dir,f):
+    mime= magic.Magic(mime=True)
+    x=(f,mime.from_file(join(dir,f)))
     p = Path(join(dir,f))
-    x=(f,mime.from_file(p))
     if((os.path.splitext(join(dir,f))[1]) not in ext):
         z=x[1].split("/")[1]
         if ('.'+z) not in ext:
-            if "spreadsheet" in z:
-                p.rename(p.with_suffix('.xls'))
-            if "presentation" in z:
-                p.rename(p.with_suffix('.ppt'))
-            if "plain" in z:
-                p.rename(p.with_suffix('.txt'))
-            if "jpeg" in z:
-                p.rename(p.with_suffix('.jpg'))
+            p.rename(p.with_suffix(alt[z.split('.')[-1]]))
         else:
             p.rename(p.with_suffix('.'+z))
