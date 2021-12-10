@@ -17,7 +17,7 @@ def downloadXSD(baseUrl,linkUrl):
             return r.text
         else:
             print("we need to go deeper")
-            soup = BeautifulSoup(r.text)#,features='lxlm')
+            soup = BeautifulSoup(r.text, features='lxml')
             results = []
             for link in soup.findAll('a'):
                 try:
