@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <a href="{{url('/')}}" target="_blank">首页</a>
+    <input id="myFile" type="file">
+    <button onclick="Check()">Upload</button>
+</body>
+<script>
+    function Check() {
+        console.log(document.getElementById("myFile").files[0].path);
+        var file = document.getElementById('myFile').files[0];
+        console.log(file);
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+    }
+
+    async function postData(url = '', data = {}) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        return response.json();
+    }
+
+
+</script>
+
+</html>
