@@ -8,6 +8,8 @@ import os
 import shutil
 from zipfile import ZipFile
 from tarfile import TarFile
+import gzip
+from py7zr import SevenZipFile
 
 def get_new_file_path(root: str, source: str, extension = None):
     if extension is None:
@@ -32,7 +34,8 @@ if __name__ == "__main__":
         shutil.copy(file, new_file_path)
         file = new_file_path
         while True:
-            if not file.endswith(ext := mimetypes.guess_extension(file_mime)):
+            print(file_mime)
+            if not file.endswith(ext if (ext := mimetypes.guess_extension(file_mime)) is not None else ""):
                 # Jeśli nie zgadza się rozszerzenie, zmień je
                 new_file_path = get_new_file_path(temp_dir, file, ext)
                 os.rename(file, new_file_path)
@@ -62,12 +65,26 @@ if __name__ == "__main__":
                     file = os.path.join(temp_dir, file)
                     file_mime = magic.from_file(file, mime=True)
             elif file_mime in ["application/x-tar"]:
-                # decompress zip
+                # decompress tar
                 zf = TarFile(file, "r")
                 zf.extractall(temp_dir)
                 for file in zf.getnames():
                     file = os.path.join(temp_dir, file)
                     file_mime = magic.from_file(file, mime=True)
+            elif file_mime in ["application/gzip"]:
+                # decompress gnuzip
+                new_file_path = get_new_file_path(temp_dir, file)
+                with gzip.open(file) as gz, open(new_file_path, "wb+") as f:
+                    f.write(gz.read())
+                file = new_file_path
+                file_mime = magic.from_file(file, mime=True)
+            elif file_mime in ["application/x-7z-compressed"]:
+                # decompress 7z
+                with SevenZipFile(file, mode="r") as z:
+                    z.extractall(path=temp_dir)
+                    for file in z.getnames():
+                        file = os.path.join(temp_dir, file)
+                        file_mime = magic.from_file(file, mime=True)
             elif file_mime == "application/pdf":
                 # redact stuff
                 new_file_path = get_new_file_path(temp_dir, file)
