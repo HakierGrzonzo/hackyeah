@@ -30,7 +30,7 @@ def downloadXSD(base_url, link_url, data, depth=0):
     full_link = parseLink(base_url, link_url)
     try:
         r = requests.get(full_link)
-    except Exception as e:
+    except Exception:
         print("failed to connect to : ", full_link)
         return []
     if r.status_code == 200 or r.status_code == 202:
