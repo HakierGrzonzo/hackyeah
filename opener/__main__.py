@@ -15,7 +15,13 @@ def get_new_file_path(root: str, source: str, extension = None):
         extension = "." + extension
     return os.path.join(root, str(abs(hash(source))) + extension)
 
-
+def open_file_in_defult(file_path: str):
+    if (system_name := os.name) == "posix":
+        os.system(f"xdg-open {file_path}")
+    elif system_name == "nt":
+        os.system(f"start {file_path}")
+    else:
+        raise Exception("What OS for the love of god is this!")
 
 if __name__ == "__main__":
     file = sys.argv[1]
@@ -63,6 +69,5 @@ if __name__ == "__main__":
             else:
                 break
         print(file, file_mime)
-        #os.startfile(file)
-        input()
+        open_file_in_defult(file)
         
