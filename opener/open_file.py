@@ -40,6 +40,7 @@ def process_file(file: str):
     new_file_path = get_new_file_path(temp_dir, file)
     shutil.copy(file, new_file_path)
     file = new_file_path
+    signatures = []
     while True:
         print(file_mime)
         if not file.endswith(ext if (ext := mimetypes.guess_extension(file_mime)) is not None else ""):
@@ -61,20 +62,22 @@ def process_file(file: str):
                         # mamy plik podpisany
                         f.seek(0)
                         # TODO(hakiergrzonzo): sprawdzanie podpisu
-                        finalFile = get_bytes_from_xml(f.read(), temp_dir)
-                        file = finalFile.name
+                        file, signature = get_bytes_from_xml(f.read(), temp_dir)
+                        signatures.append(signature)
                         file_mime = magic.from_file(file, mime=True)
                     else:
                         # mamy jakiś poprawny, aczkolwiek nie podpisany xml
                         file = prependFile(file)
                         res = OpenFileResponse(mime = file_mime)
                         res.path_to_xml = file
+                        res.signatures = signatures
                         return res
             except UnicodeDecodeError:
                 # mamy xml ale nie utf8
                 file = prependFile(file)
                 res = OpenFileResponse(mime = file_mime)
                 res.path_to_xml = file
+                res.signatures = signatures
                 return res
                     
         elif file_mime in ["application/zip"]:
@@ -110,5 +113,6 @@ def process_file(file: str):
     res = OpenFileResponse(mime = file_mime)
     res.path_to_file = file
     open_file_in_default(file)
+    res.signatures = signatures
     return res
         

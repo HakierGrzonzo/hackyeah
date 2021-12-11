@@ -1,10 +1,6 @@
 from typing import Optional, List
 from pydantic import BaseModel
-
-class Signature(BaseModel):
-    author: str
-    date: str
-    isValid: bool
+from .xmlbins import Signature
 
 class OpenFileResponse(BaseModel):
     path_to_xml: Optional[str] = None
