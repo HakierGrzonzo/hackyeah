@@ -1,3 +1,3 @@
 [submodule "opener/pdf_redactor"]
 	path = opener/pdf_redactor
-	url = git@github.com:JoshData/pdf-redactor.git
+	url = ../pdf-redactor.git
