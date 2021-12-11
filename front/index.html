@@ -54,8 +54,8 @@
             </text>
         </g>
     </svg>
-    <div class="home">
-        <label for="file-input">
+    <div class="home" id="home">
+        <label class="noselect" for="file-input">
             <svg xmlns="http://www.w3.org/2000/svg" width="296.302" height="228.784" viewBox="0 0 296.302 228.784">
                 <g id="Group_1" data-name="Group 1" transform="translate(-363.849 -236.108)">
                     <text id="Dodaj_plik" data-name="Dodaj plik" transform="translate(464 373)" font-size="22"
@@ -69,14 +69,16 @@
         </label>
         <input class="none" id="file-input" type="file" />
     </div>
+    <div id="deleting" class="home none">
+        <input type="text" id="deleting-input" placeholder="Podaj nazwę do usunięcia z pdf" />
+        <button id="deleting-button">Usuń</button>
+    </div>
 </body>
 <script>
-
-    const base = "http://localhost:8000";
-    async function sendFile() {
+    document.getElementById("file-input").addEventListener("change", async function (event) {
         let path;
         try {
-            path = document.getElementById("myFile").files[0].path;
+            path = document.getElementById("file-input").files[0].path;
         } catch (error) {
             alert("Nie wybrano pliku");
         }
@@ -85,16 +87,40 @@
             return;
         }
         else {
-            let response = await postData(document.getElementById("myFile").files[0].path);
+            let response = await postData(document.getElementById("file-input").files[0].path);
             console.log(response);
             if (response.path_to_xml != null && response.path_to_xml != undefined && response.path_to_xml != "") {
                 window.open(`${response.path_to_xml}`, '_blank');
             }
+            if (response.mime == "application/pdf") {
+                document.getElementById("home").classList.add("none");
+                document.getElementById("deleting").classList.remove("none");
+            }
+        }
+    });
+
+    document.getElementById("deleting-button").addEventListener("click", async function (event) {
+        let response = await deleteData(document.getElementById("deleting-input").value);
+        console.log(response);
+        if (response.status == "ok") {
+            alert("Usunięto plik");
+
+        }
+        else {
+            alert("Nie udało się usunąć pliku");
+        }
+    });
+
+    const base = "http://localhost:8000";
+
+    function goHome() {
+        document.getElementById("deleting").classList.add("none");
+        document.getElementById("home").classList.remove("none");
+        if (!window.location.href.includes("index.html")) {
+            window.location.href = "index.html";
         }
     }
-    function goHome() {
-        window.location.href = "index.html";
-    }
+
     async function postData(path) {
         let url = `${base}/api/openfile`;
         url = url + "?path_to_file=" + path;
@@ -103,6 +129,23 @@
             headers: {
                 'Content-Type': 'application/json'
             }
+        });
+        return response.json();
+    }
+
+    async function anonimize(path, srting) {
+        let url = `${base}/api/pdf/submit_strings`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "strings": [
+                    srting
+                ],
+                "path_to_file": path,
+            })
         });
         return response.json();
     }
