@@ -39,7 +39,7 @@ if __name__ == "__main__":
             elif "text/xml" == file_mime:
                 try:
                     with open(file, "r") as f:
-                        if 'xmlns:wnio="http://epuap.gov.pl/fe-model-web/wzor_lokalny/EPUAP-----/podpisanyPlik/"' in f.readlines()[0]:
+                        if 'xmlns:wnio="http://epuap.gov.pl/fe-model-web/wzor_lokalny/EPUAP-----/podpisanyPlik/"' in f.read():
                             # mamy plik podpisany
                             f.seek(0)
                             # TODO(hakiergrzonzo): sprawdzanie podpisu
@@ -70,4 +70,5 @@ if __name__ == "__main__":
                 break
         print(file, file_mime)
         open_file_in_defult(file)
+        input()
         
