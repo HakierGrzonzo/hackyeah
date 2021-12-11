@@ -13,6 +13,9 @@ from tarfile import TarFile
 import gzip
 from py7zr import SevenZipFile
 
+temp_directory = tempfile.TemporaryDirectory()
+temp_dir = temp_directory.name
+
 def get_new_file_path(root: str, source: str, extension = None) -> str:
     if extension is None:
         extension = source.split(".")[-1]
@@ -31,8 +34,6 @@ def open_file_in_default(file_path: str) -> None:
 def process_file(file: str):
     file_mime = magic.from_file(file, mime=True)
     #with tempfile.TemporaryDirectory() as temp_dir:
-    temp_directory = tempfile.TemporaryDirectory()
-    temp_dir = temp_directory.name
     new_file_path = get_new_file_path(temp_dir, file)
     shutil.copy(file, new_file_path)
     file = new_file_path
