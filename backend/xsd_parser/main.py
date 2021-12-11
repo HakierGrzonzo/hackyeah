@@ -64,7 +64,7 @@ def downloadSchemas(filepath):
 
     return schemas
 
-resources = downloadSchemas("xml/file1")
+resources = downloadSchemas("xml/file2")
 
 for type in resources:
     print(type)
