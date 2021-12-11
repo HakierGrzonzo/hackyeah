@@ -13,8 +13,10 @@ from tarfile import TarFile
 import gzip
 from py7zr import SevenZipFile
 
-temp_directory = tempfile.TemporaryDirectory()
-temp_dir = temp_directory.name
+if os.name == "posix":
+    temp_dir = "/tmp"
+elif os.name == "nt":
+    temp_dir = os.expanduser("~")
 
 def get_new_file_path(root: str, source: str, extension = None) -> str:
     if extension is None:
@@ -32,6 +34,7 @@ def open_file_in_default(file_path: str) -> None:
         raise Exception("What OS for the love of god is this!")
 
 def process_file(file: str):
+    global temp_dir
     file_mime = magic.from_file(file, mime=True)
     #with tempfile.TemporaryDirectory() as temp_dir:
     new_file_path = get_new_file_path(temp_dir, file)
