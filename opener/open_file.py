@@ -15,8 +15,8 @@ from py7zr import SevenZipFile
 
 if os.name == "posix":
     temp_dir = "/tmp"
-elif os.name == "nt":
-    temp_dir = os.expanduser("~")
+if os.name == "nt":
+    temp_dir = os.path.expanduser("~")
 
 def get_new_file_path(root: str, source: str, extension = None) -> str:
     if extension is None:
