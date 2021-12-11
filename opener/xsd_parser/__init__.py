@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import requests
+import os
 from bs4 import BeautifulSoup
 #from url_normalize import url_normalize
 
@@ -20,6 +21,7 @@ def parseLink(base_url, link_url):
     full_link = link_url
     if link_url[:4] != "http":
         full_link = base_url + "/" + link_url
+
     full_link = canonizeUrl(full_link)
     return full_link
 
@@ -28,12 +30,15 @@ def downloadXSD(base_url, link_url, data, depth=0):
     if len(link_url) == 0 or depth > 1:  #recursion safeguard
         return []
     full_link = parseLink(base_url, link_url)
+
     try:
         r = requests.get(full_link)
-    except Exception:
+    except Exception as e:
         print("failed to connect to : ", full_link)
         return []
+
     if r.status_code == 200 or r.status_code == 202:
+
         if r.headers['content-type'].split(
                 ";")[0] in listOfXsdTypes and full_link[-3:] in [
                     'xsd', 'xml', 'xsl'
@@ -41,6 +46,7 @@ def downloadXSD(base_url, link_url, data, depth=0):
             #print(full_link)
             data[full_link[-3:]].append(full_link)
             #data[full_link[-3:]].append(r.text)
+
         elif r.headers['content-type'].split(";")[0] in [
                 'text/html', 'html/plain'
         ]:
@@ -53,23 +59,53 @@ def downloadXSD(base_url, link_url, data, depth=0):
 
 
 def downloadSchemas(filepath):
+
     namespaces = dict(
         [node for _, node in ET.iterparse(filepath, events=['start-ns'])])
     schemas = {'xsd': [], 'xsl': [], 'xml': []}
+
     for name in namespaces:
         r = requests.get(namespaces[name])
         if r.status_code == 200 or r.status_code == 202:
             try:
                 downloadXSD("", namespaces[name], schemas)
-            except Exception as e:
+            except Exception:
                 print("Failed to download schema")
         else:
             print("Error downloading schema: ", namespaces[name])
+
     return schemas
 
 
-if __name__ == "__main__":
+def openFiles(filepath):
+    dir = os.path.dirname(os.path.realpath(filepath))
+    filename = os.path.basename(os.path.realpath(filepath))
+    print("file in folder: ", dir, " with name: ", filename)
+    try:
+        file = open(filepath, 'rb')
+        print("Creating: ", os.path.join(dir, "extended-" + filename))
+        extended = open(os.path.join(dir, "extended-" + filename), 'wb')
+        return file, extended
+    except Exception:
+        print("Failed to open file")
+        return None, None
+
+
+def prependFile(filepath):
+    original, extended = openFiles(filepath)
+    if original is None or extended is None:
+        print("Failed to open file")
+        return
     resources = downloadSchemas("xml/file1")
-    for type in resources:
-        print(type)
-        print(resources[type])
+    if resources is None:
+        print("Failed to read resources from file")
+        return
+    styles = '<?xml version="1.0" encoding="UTF-8"?>'
+    for style in resources['xsl']:
+        styles += f'<?xml-stylesheet type="text/xsl" href="{style}" ?>'
+    extended.write(bytes(styles, 'utf-8'))
+    data = original.read()
+    print(data)
+    extended.write(data)
+
+
