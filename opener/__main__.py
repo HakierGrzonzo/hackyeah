@@ -7,6 +7,7 @@ import tempfile
 import os
 import shutil
 from zipfile import ZipFile
+from tarfile import TarFile
 
 def get_new_file_path(root: str, source: str, extension = None):
     if extension is None:
@@ -58,6 +59,13 @@ if __name__ == "__main__":
                 zf = ZipFile(file, "r")
                 zf.extractall(temp_dir)
                 for file in zf.namelist():
+                    file = os.path.join(temp_dir, file)
+                    file_mime = magic.from_file(file, mime=True)
+            elif file_mime in ["application/x-tar"]:
+                # decompress zip
+                zf = TarFile(file, "r")
+                zf.extractall(temp_dir)
+                for file in zf.getnames():
                     file = os.path.join(temp_dir, file)
                     file_mime = magic.from_file(file, mime=True)
             elif file_mime == "application/pdf":
