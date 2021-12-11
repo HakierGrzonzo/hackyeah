@@ -19,7 +19,7 @@ def get_new_file_path(root: str, source: str, extension = None):
         extension = "." + extension
     return os.path.join(root, str(abs(hash(source))) + extension)
 
-def open_file_in_defult(file_path: str):
+def open_file_in_default(file_path: str):
     if (system_name := os.name) == "posix":
         os.system(f"xdg-open {file_path}")
     elif system_name == "nt":
@@ -102,6 +102,6 @@ if __name__ == "__main__":
             else:
                 break
         print(file, file_mime)
-        open_file_in_defult(file)
+        open_file_in_default(file)
         input()
         
