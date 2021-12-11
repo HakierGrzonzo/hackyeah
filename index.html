@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.10.377/build/pdf.min.js"></script>
+</head>
+
+<body>
+    <span class=" page-info">
+        Page <span id="page-num"></span> of <span id="page-count"></span>
+    </span>
+    <canvas id="pdf_canvas"></canvas>
+
+
+    <script>
+        const url = './file.pdf'
+
+        let pdfDoc = null,
+            pageNum = 1,
+            pageIsRendering = false,
+            pageNumIsPending = null;
+
+        const scale = 1.5,
+            canvas = document.querySelector('#pdf_canvas'),
+            ctx = canvas.getContext('2d');
+        const renderPage = num => {
+            pageIsRendering = true;
+
+            pdfDoc.getPage(num).then(page => {
+                const viewport = page.getViewport({ scale });
+                canvas.height = viewport.height
+                canvas.width = viewport.width
+
+                const renderCtx = {
+                    canvasContext: ctx,
+                    viewport
+                }
+
+                page.render(renderCtx).promise.then(() => {
+                    pageIsRendering = false;
+
+                    if (pageNumIsPending !== null) {
+                        renderPage(pageNumIsPending);
+                        pageNumIsPending = null
+                    }
+                });
+
+                document.querySelector
+            })
+        }
+
+        pdfDoc = pdfjsLib.getDocument(url).promise.then(pdfDoc_ => {
+            pdfDoc = pdfDoc_
+
+            document.querySelector("#page-num").textContent = pdfDoc.numPages;
+
+            renderPage(pageNum)
+        });
+
+
+
+
+    </script>
+</body>
+
+</html>
