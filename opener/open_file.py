@@ -45,9 +45,8 @@ def process_file(file: str):
                 # Jeżeli coś się zaczyna jakimś tagiem to pewnie jest to jakaś forma XML
                 file = prependFile(file)
                 file_mime = magic.from_file(file, mime=True)
-                res = OpenFileResponse()
+                res = OpenFileResponse(mime = file_mime)
                 res.path_to_xml = file
-                res.mime = file_mime
                 return res
             elif "text/xml" == file_mime:
                 try:
@@ -62,16 +61,14 @@ def process_file(file: str):
                         else:
                             # mamy jakiś poprawny, aczkolwiek nie podpisany xml
                             file = prependFile(file)
-                            res = OpenFileResponse()
+                            res = OpenFileResponse(mime = file_mime)
                             res.path_to_xml = file
-                            res.mime = file_mime
                             return res
                 except UnicodeDecodeError:
                     # mamy xml ale nie utf8
                     file = prependFile(file)
-                    res = OpenFileResponse()
+                    res = OpenFileResponse(mime = file_mime)
                     res.path_to_xml = file
-                    res.mime = file_mime
                     return res
                         
             elif file_mime in ["application/zip"]:
@@ -104,8 +101,7 @@ def process_file(file: str):
                         file_mime = magic.from_file(file, mime=True)
             else:
                 break
-        res = OpenFileResponse()
-        res.mime = file_mime
+        res = OpenFileResponse(mime = file_mime)
         res.path_to_file = file
         open_file_in_default(file)
         return res
