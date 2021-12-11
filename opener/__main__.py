@@ -1,5 +1,6 @@
 from .xmlbins import get_bytes_from_xml
 from .pdf_redact import redact_strings_from_pdf
+from .xsd_parser import prependFile
 import sys
 import magic
 import mimetypes
@@ -40,6 +41,11 @@ if __name__ == "__main__":
                 new_file_path = get_new_file_path(temp_dir, file, ext)
                 os.rename(file, new_file_path)
                 file = new_file_path
+            elif file_mime == "text/plain" and open(file, "r").read().startswith("<"):
+                # Jeżeli coś się zaczyna jakimś tagiem to pewnie jest to jakaś forma XML
+                file = prependFile(file)
+                file_mime = magic.from_file(file, mime=True)
+                break
             elif "text/xml" == file_mime:
                 try:
                     with open(file, "r") as f:
@@ -52,9 +58,11 @@ if __name__ == "__main__":
                             file_mime = magic.from_file(file, mime=True)
                         else:
                             # mamy jakiś poprawny, aczkolwiek nie podpisany xml
+                            prependFile(file)
                             break
                 except UnicodeDecodeError:
                     # mamy xml ale nie utf8
+                    prependFile(file)
                     break
                         
             elif file_mime in ["application/zip"]:

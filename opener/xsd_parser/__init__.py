@@ -84,7 +84,7 @@ def openFiles(filepath):
     try:
         file = open(filepath, 'rb')
         print("Creating: ", os.path.join(dir, "extended-" + filename))
-        extended = open(os.path.join(dir, "extended-" + filename), 'wb')
+        extended = open(os.path.join(dir, "extended-" + filename + ".xml"), 'wb')
         return file, extended
     except Exception:
         print("Failed to open file")
@@ -96,7 +96,7 @@ def prependFile(filepath):
     if original is None or extended is None:
         print("Failed to open file")
         return
-    resources = downloadSchemas("xml/file1")
+    resources = downloadSchemas(filepath)
     if resources is None:
         print("Failed to read resources from file")
         return
@@ -107,5 +107,6 @@ def prependFile(filepath):
     data = original.read()
     print(data)
     extended.write(data)
+    return extended.name
 
 
