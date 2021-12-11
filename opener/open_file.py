@@ -1,6 +1,7 @@
 from .xmlbins import get_bytes_from_xml
 from .pdf_redact import redact_strings_from_pdf
 from .xsd_parser import prependFile
+from .types import OpenFileResponse
 import sys
 import magic
 import mimetypes
@@ -12,14 +13,14 @@ from tarfile import TarFile
 import gzip
 from py7zr import SevenZipFile
 
-def get_new_file_path(root: str, source: str, extension = None):
+def get_new_file_path(root: str, source: str, extension = None) -> str:
     if extension is None:
         extension = source.split(".")[-1]
     if not extension.startswith("."):
         extension = "." + extension
     return os.path.join(root, str(abs(hash(source))) + extension)
 
-def open_file_in_default(file_path: str):
+def open_file_in_default(file_path: str) -> None:
     if (system_name := os.name) == "posix":
         os.system(f"xdg-open {file_path}")
     elif system_name == "nt":
@@ -27,8 +28,7 @@ def open_file_in_default(file_path: str):
     else:
         raise Exception("What OS for the love of god is this!")
 
-if __name__ == "__main__":
-    file = sys.argv[1]
+def process_file(file: str):
     file_mime = magic.from_file(file, mime=True)
     with tempfile.TemporaryDirectory() as temp_dir:
         new_file_path = get_new_file_path(temp_dir, file)
@@ -45,7 +45,10 @@ if __name__ == "__main__":
                 # Jeżeli coś się zaczyna jakimś tagiem to pewnie jest to jakaś forma XML
                 file = prependFile(file)
                 file_mime = magic.from_file(file, mime=True)
-                break
+                res = OpenFileResponse()
+                res.path_to_xml = file
+                res.mime = file_mime
+                return res
             elif "text/xml" == file_mime:
                 try:
                     with open(file, "r") as f:
@@ -58,12 +61,18 @@ if __name__ == "__main__":
                             file_mime = magic.from_file(file, mime=True)
                         else:
                             # mamy jakiś poprawny, aczkolwiek nie podpisany xml
-                            prependFile(file)
-                            break
+                            file = prependFile(file)
+                            res = OpenFileResponse()
+                            res.path_to_xml = file
+                            res.mime = file_mime
+                            return res
                 except UnicodeDecodeError:
                     # mamy xml ale nie utf8
-                    prependFile(file)
-                    break
+                    file = prependFile(file)
+                    res = OpenFileResponse()
+                    res.path_to_xml = file
+                    res.mime = file_mime
+                    return res
                         
             elif file_mime in ["application/zip"]:
                 # decompress zip
@@ -93,15 +102,11 @@ if __name__ == "__main__":
                     for file in z.getnames():
                         file = os.path.join(temp_dir, file)
                         file_mime = magic.from_file(file, mime=True)
-            elif file_mime == "application/pdf":
-                # redact stuff
-                new_file_path = get_new_file_path(temp_dir, file)
-                redact_strings_from_pdf(file, ["z?weryfik"], new_file_path)
-                file = new_file_path
-                break
             else:
                 break
-        print(file, file_mime)
+        res = OpenFileResponse()
+        res.mime = file_mime
+        res.path_to_file = file
         open_file_in_default(file)
-        input()
+        return res
         
