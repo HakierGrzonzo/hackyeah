@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
+    <style>
+        .home {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .none {
+            display: none;
+        }
+
+        .absolute {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            z-index: 1;
+        }
+
+        .noselect {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .small {
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+
+<body>
+
+</body>
+<script>
+
+    // 
+    const base = "http://localhost:8000";
+    async function sendFile() {
+        let path;
+        try {
+            path = document.getElementById("myFile").files[0].path;
+        } catch (error) {
+            alert("Nie wybrano pliku");
+        }
+        if (path == undefined || path == null || path == "") {
+            alert("nie wybrano pliku");
+            return;
+        }
+        else {
+            let response = await postData(document.getElementById("myFile").files[0].path);
+            console.log(response);
+            if (response.path_to_xml != null && response.path_to_xml != undefined && response.path_to_xml != "") {
+                window.open(`${response.path_to_xml}`, '_blank');
+            }
+        }
+    }
+    function goHome() {
+        window.location.href = "index2.html";
+    }
+    async function postData(path) {
+        let url = `${base}/api/pdf/submit_strings`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "strings": [
+                    "string"
+                ],
+                "path_to_file": "string",
+            })
+        });
+        return response.json();
+    }
+</script>
+
+</html>

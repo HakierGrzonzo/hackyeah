@@ -1,0 +1,204 @@
+.home {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    display: flex;
+    height: calc(100vh - 15mm);
+}
+
+@media screen and (max-width: 700px) {
+  .home {
+    flex-direction: column;
+  }
+}
+
+.red-border {
+  border: 10px red solid;
+}
+
+.green-border {
+  border: 10px green solid;
+}
+
+.none {
+    display: none;
+}
+
+.absolute {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    z-index: 1;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.small {
+    width: 50px;
+    height: 50px;
+}
+nav {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  max-height: 1cm;
+}
+nav > * {
+  padding: 2.5mm 3mm;
+  font-weight: 500;
+}
+nav svg {
+  height: 1cm;
+  width: 1cm;
+}
+body {
+  font-family: Lato-Regular, Lato;
+  font-size: 120%;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  transition: border-color 200ms ease;
+}
+
+input[type=file] {
+  -webkit-appearance: none;
+  color: white;
+  background-image: url("file.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+  height: 50%;
+  max-width: 14cm;
+  min-width: 5cm;
+  flex: 1;
+  font-size: 0;
+  outline: none;
+}
+input[type=file]::-webkit-file-upload-button {
+  width: 0;
+  padding: 0;
+  margin: 0;
+  -webkit-appearance: none;
+  border: none;
+}
+
+input[type=file] {
+-webkit-appearance: textfield;
+position: relative;
+-webkit-box-sizing: border-box;
+}
+
+#signatures li {
+  list-style-type: none;
+  text-align: right;
+  margin-bottom: 5mm;
+}
+#signatures li.valid {
+  color: green;
+}
+#signatures li.invalid {
+  color: red;
+}
+#signatures p {
+  max-width: 8cm;
+}
+
+#word-panel {
+  flex: 1;
+  height: 100%;
+  margin-left: 5mm;
+  margin-right: 5mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#iframe-container {
+  flex: 1;
+  display: flex;
+  height: 100%;
+}
+
+iframe {
+  flex: 1;
+}
+
+.row-flex {
+  margin-bottom: 3mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+a.remove-btn {
+  background-color: red;
+  border-radius: 8px;
+  color: white;
+  width: 20px;
+  height 20px;
+  text-align: center;
+  padding: 1mm;
+  cursor: pointer;
+}
+.row-flex input[type=text] {
+  width: 80%;
+  outline: none;
+  border-top-width: 0px;
+  border-left-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 1px;
+  border-color: black;
+  padding: 2mm;
+  font-size: 14pt;
+  transition: background-color 200ms ease;
+}
+.row-flex input[type=text]:hover,
+.row-flex input[type=text]:focus {
+  background-color: #EEEEEE;
+}
+
+.center-flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5mm;
+}
+
+a.run {
+  background-color: #1d81e0;
+  color: white;
+  padding: 3mm;
+  border-radius: 5px;
+  cursor: pointer;
+}
+a.add-string {
+  color: #BBBBBB;
+  font-size: 25pt;
+  width: 100%;
+  text-align: center;
+  transition: all 400ms ease;
+}
+
+a.add-string:hover {
+  color: gray;
+  background-color: #BBBBBB;
+}
+
+#list-of-suggestions {
+  display: flex;
+  justify-content: space-around;
+  font-size: 10pt;
+  margin-top: 5mm;
+}
+
+#list-of-suggestions a {
+  background-color: #1d81e0;
+  padding: 1mm 4mm;
+  border-radius: 4mm;
+  cursor: pointer;
+  color: white;
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="296.302" height="228.784" viewBox="0 0 296.302 228.784">
+    <g id="Group_1" data-name="Group 1" transform="translate(-363.849 -236.108)">
+        <text id="Dodaj_plik" data-name="Dodaj plik" transform="translate(464 373)" font-size="22"
+            font-family="Lato-Regular, Lato">
+            <tspan x="0" y="0">Otwórz plik</tspan>
+        </text>
+        <path id="Path_4" data-name="Path 4" d="M352.533,212H248.367V424.784h280.3V246.166H372.489Z"
+            transform="translate(123.483 32.108)" fill="none" stroke="#767676" stroke-width="16" />
+    </g>
+</svg>
