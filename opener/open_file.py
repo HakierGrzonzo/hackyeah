@@ -27,7 +27,7 @@ def get_new_file_path(root: str, source: str, extension = None) -> str:
 
 def open_file_in_default(file_path: str) -> None:
     if (system_name := os.name) == "posix":
-        os.system(f"xdg-open {file_path}")
+        os.system(f"bash -c \"xdg-open \"{file_path}\" &\"")
     elif system_name == "nt":
         os.system(f"start {file_path}")
     else:
@@ -54,6 +54,7 @@ def process_file(file: str):
             file_mime = magic.from_file(file, mime=True)
             res = OpenFileResponse(mime = file_mime)
             res.path_to_xml = file
+            res.signatures = signatures
             return res
         elif "text/xml" == file_mime:
             try:

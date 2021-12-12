@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" type="text/css" media="all">
+    <title>otwieracz.gov - anominizacja</title>
+</head>
+
+<body>
+  <nav>
+    <span>Anomizowanie plików PDF</span>
+    <span>otwieracz.gov</span>
+  </nav>
+  <div class="home" id="home">
+    <div id="word-panel">
+      <div class="lista">
+        <h3>Lista usuwanych fraz:</h3>
+        <div id="list-of-strings">
+        </div>
+        <div title="szybkie sugestie" id="list-of-suggestions">
+          <span>Sugerowane:</span>
+        </div>
+        <div class="center-flex">
+          <a onclick="add_string_to_list('')" title="Dodaj kolejną frazę" class="add-string">+</a>
+        </div>
+      </div>
+      <div class="center-flex">
+        <a onclick="censor()" title="Orginał nie zostanie zmieniony." class="run">Usuń frazy</a>
+      </div>
+    </div>
+    <div id="iframe-container">
+  </div>
+</body>
+<script>
+  const response = JSON.parse(atob(window.location.search.substring(1)))
+  const base = "http://localhost:8000";
+  let id_counter = 5
+  let suggestion_count = 0
+  function loadpdf(url) {
+    document.getElementById("iframe-container").innerHTML = `<iframe src="${url}"></iframe>`
+  }
+  function add_string_to_list(string) {
+    console.log("adding string")
+    document.getElementById("list-of-strings").insertAdjacentHTML("beforeend", `
+       <div class="row-flex" id="${id_counter}-woo">
+         <input type="text" placeholder="Dane do usunięcia" value="${string}">
+        <a onclick="remove_from_list('${id_counter}-woo')" title="Usuń tą frazę z listy" class="remove-btn">x</a>
+      </div>
+    `)
+    id_counter++;
+  }
+  function remove_from_list(id) {
+      document.getElementById(id).remove()
+  }
+  
+  function add_suggestion_field(display, values) {
+    document.getElementById("list-of-suggestions").insertAdjacentHTML("beforeend", `
+ <a onclick="resolve_suggestion('${btoa(JSON.stringify({v: values, id: id_counter + "-wii"}))}')" id="${id_counter}-wii">${display}</a>
+    `)
+    id_counter++;
+    suggestion_count++;
+  }
+
+  function resolve_suggestion(values) {
+      let decoded = JSON.parse(atob(values))
+      for (let x of decoded.v) {
+          add_string_to_list(x)
+      }
+      document.getElementById(decoded.id).remove()
+      suggestion_count--;
+      if (suggestion_count === 0) {
+        document.getElementById('list-of-suggestions').remove()
+      }
+  }
+  
+  async function postData(data) {
+      let url = `${base}/api/pdf/submit_strings`;
+      const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+      });
+      return response.json();
+  }
+  async function censor() {
+    let strings = []
+    document.querySelectorAll("#list-of-strings input").forEach(x => {
+        if (x.value) {
+            strings.push(x.value)
+        }
+    })
+    console.log(strings)
+    let res = await postData({
+      'strings': strings,
+      'path_to_file': response.path_to_file})
+    loadpdf(res.return_path)
+
+  }
+
+  add_string_to_list('')
+  add_suggestion_field("PESEL", ["[0-9]{9}"])
+  for (let x of response.signatures) {
+    add_suggestion_field(x, x.split(" "))
+  }
+  loadpdf(response.path_to_file)
+</script>
+</html>

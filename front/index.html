@@ -1,157 +1,136 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        .home {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100vh;
-        }
-
-        .none {
-            display: none;
-        }
-
-        .absolute {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            z-index: 1;
-        }
-
-        .noselect {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
-        .small {
-            width: 50px;
-            height: 50px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css" type="text/css" media="all">
+    <title>otwieracz.gov</title>
 </head>
 
 <body>
-
-    <svg class="noselect absolute small" onclick="goHome()" xmlns="http://www.w3.org/2000/svg" width="57.333"
-        height="44.486" viewBox="0 0 57.333 44.486">
-        <g id="Group_2" data-name="Group 2" transform="translate(-17.849 -18.108)">
-            <path id="Path_5" data-name="Path 5" d="M268.186,212h-19.82v40.486H301.7V218.5H271.983Z"
-                transform="translate(-228.517 -191.892)" fill="none" stroke="#b96a6a" stroke-width="4" />
-            <text id="O" transform="translate(38 51)" fill="#b96a6a" stroke="#b96a6a" stroke-width="1" font-size="22"
-                font-family="Lato-Medium, Lato" font-weight="500">
-                <tspan x="0" y="0">O</tspan>
-            </text>
-        </g>
+  <nav>
+    <svg onclick="goHome()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 89.022 75.669">
+      <path id="Icon_material-home" data-name="Icon material-home" d="M38.609,80.169V53.462h17.8V80.169H78.669V44.56H92.022L47.511,4.5,3,44.56H16.353V80.169Z" transform="translate(-3 -4.5)" fill="#262626"/>
     </svg>
-
-    <iframe id="pdf" class="none" src=""></iframe>
-
-    <div class="home" id="home">
-        <label class="noselect" for="file-input">
-            <svg xmlns="http://www.w3.org/2000/svg" width="296.302" height="228.784" viewBox="0 0 296.302 228.784">
-                <g id="Group_1" data-name="Group 1" transform="translate(-363.849 -236.108)">
-                    <text id="Dodaj_plik" data-name="Dodaj plik" transform="translate(464 373)" font-size="22"
-                        font-family="Lato-Regular, Lato">
-                        <tspan x="0" y="0">Dodaj plik</tspan>
-                    </text>
-                    <path id="Path_4" data-name="Path 4" d="M352.533,212H248.367V424.784h280.3V246.166H372.489Z"
-                        transform="translate(123.483 32.108)" fill="none" stroke="#767676" stroke-width="16" />
-                </g>
-            </svg>
-        </label>
-        <input class="none" id="file-input" type="file" />
+    <span>otwieracz.gov</span>
+  </nav>
+  <div class="home" id="home">
+    <input type="file" name="file-drop-zone" id="file-input">
+    <div id="signatures">
+      <p>Przeciągnij plik by go otworzyć i zweryfikować podpisy elektroniczne.</p>
+      <p>Orginalne pliki nie zostaną zmodyfikowane.</p>
     </div>
-
-    <div id="deleting" class="home none">
-        <input type="text" id="deleting-input" placeholder="Podaj nazwę do usunięcia z pdf" />
-        <button id="deleting-button">Usuń</button>
-    </div>
-
+  </div>
 </body>
 <script>
-    var lastFile = null;
-
-    document.getElementById("file-input").addEventListener("change", async function (event) {
+  var lastFile = null;
+  const base = "http://localhost:8000";
+   document.getElementById("file-input").addEventListener("change", async function (event) {
         let path;
         try {
             path = document.getElementById("file-input").files[0].path;
             lastFile = path;
         } catch (error) {
-            alert("Nie wybrano pliku");
         }
         if (path == undefined || path == null || path == "") {
-            alert("nie wybrano pliku");
             return;
         }
         else {
             let response = await postData(document.getElementById("file-input").files[0].path);
             console.log(response);
+            let new_content = `
+              <h3>Podpisy Elektroniczne:</h3>
+            `
+            let allClear = true;
+            if (response.signatures.length === 0) {
+                allClear = false
+                new_content += `<li class="invalid">Nie znaleziono żadnych podpisów</li>`
+            } else {
+                for (let x of response.signatures) {
+                    new_content += `<li class="` +
+                      (x.isValid ? "valid" : "invalid") +`">` +
+                      (x.isValid ? "&#10003;" : "&#10060;") +
+                      (x.author ? x.author : "Nieznany") +
+                      `</li>`
+                    if (!x.isValid) {
+                      allClear = false
+                    }
+                }
+            }
+            document.body.className = allClear ? "green-border" : "red-border"
+            document.getElementById('signatures').innerHTML = new_content
             if (response.path_to_xml != null && response.path_to_xml != undefined && response.path_to_xml != "") {
                 window.open(`${response.path_to_xml}`, '_blank');
             }
             if (response.mime == "application/pdf") {
-                document.getElementById("home").classList.add("none");
-                document.getElementById("deleting").classList.remove("none");
+              window.open("pdf_anon.html?" + btoa(JSON.stringify(response)), '_blank')
             }
         }
     });
-
-    document.getElementById("deleting-button").addEventListener("click", async function (event) {
-        let response = await anonimize(document.getElementById("deleting-input").value);
-    });
-
-    const base = "http://localhost:8000";
-
-    function goHome() {
-        document.getElementById("deleting").classList.add("none");
-        document.getElementById("home").classList.remove("none");
-        if (!window.location.href.includes("index.html")) {
-            window.location.href = "index.html";
-        }
-    }
-
-    async function postData(path) {
-        let url = `${base}/api/openfile`;
-        url = url + "?path_to_file=" + path;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        return response.json();
-    }
-
-    async function anonimize(srting) {
-        let url = `${base}/api/pdf/submit_strings`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                "strings": [
-                    srting
-                ],
-                "path_to_file": lastFile,
-            })
-        });
-        return response.json();
-    }
+  document.getElementById("file-drop-zone").addEventListener("ondrop", async function (event) {
+      event.preventDefault();
+      if (event.dataTransfer.items) {
+          if (event.dataTransfer.items[0].kind === 'file') {
+              let file = event.dataTransfer.items[0].getAsFile().name;
+              let response = await postData(file);
+              console.log(response);
+              if (response.path_to_xml != null && response.path_to_xml != undefined && response.path_to_xml != "") {
+                  window.open(`${response.path_to_xml}`, '_blank');
+              }
+              if (response.mime == "application/pdf") {
+                  document.getElementById("home").classList.add("none");
+                  document.getElementById("deleting").classList.remove("none");
+              }
+          }
+      }
+  })
+  document.getElementById("file-drop-zone").addEventListener("ondragover", function (event) {
+      event.preventDefault();
+      console.log("drag");
+  })
 
 
+  document.getElementById("deleting-button").addEventListener("click", async function (event) {
+      let response = await anonimize(document.getElementById("deleting-input").value);
+  });
+
+
+  function goHome() {
+      document.getElementById("deleting").classList.add("none");
+      document.getElementById("home").classList.remove("none");
+      if (!window.location.href.includes("index.html")) {
+          window.location.href = "index.html";
+      }
+  }
+
+  async function postData(path) {
+      let url = `${base}/api/openfile`;
+      url = url + "?path_to_file=" + path;
+      const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+      return response.json();
+  }
+
+  async function anonimize(srting) {
+      let url = `${base}/api/pdf/submit_strings`;
+      const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+              "strings": [
+                  srting
+              ],
+              "path_to_file": lastFile,
+          })
+      });
+      return response.json();
+  }
 </script>
-
 </html>
