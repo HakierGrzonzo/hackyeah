@@ -50,7 +50,10 @@ def process_file(file: str):
             file = new_file_path
         elif file_mime == "text/plain" and open(file, "r").read().startswith("<"):
             # Jeżeli coś się zaczyna jakimś tagiem to pewnie jest to jakaś forma XML
-            file = prependFile(file)
+            try:
+                file = prependFile(file)
+            except:
+                pass
             file_mime = magic.from_file(file, mime=True)
             res = OpenFileResponse(mime = file_mime)
             res.path_to_xml = file
@@ -68,14 +71,20 @@ def process_file(file: str):
                         file_mime = magic.from_file(file, mime=True)
                     else:
                         # mamy jakiś poprawny, aczkolwiek nie podpisany xml
-                        file = prependFile(file)
+                        try:
+                            file = prependFile(file)
+                        except:
+                            pass
                         res = OpenFileResponse(mime = file_mime)
                         res.path_to_xml = file
                         res.signatures = signatures
                         return res
             except UnicodeDecodeError:
                 # mamy xml ale nie utf8
-                file = prependFile(file)
+                try:
+                    file = prependFile(file)
+                except:
+                    pass
                 res = OpenFileResponse(mime = file_mime)
                 res.path_to_xml = file
                 res.signatures = signatures

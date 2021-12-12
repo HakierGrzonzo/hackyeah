@@ -100,7 +100,7 @@ def prependFile(filepath):
     if resources is None:
         print("Failed to read resources from file")
         return
-    styles = '<?xml version="1.0" encoding="UTF-8"?>'
+    styles = '<?xml version="1.0" ?>'
     for style in resources['xsl']:
         styles += f'<?xml-stylesheet type="text/xsl" href="{style}" ?>'
     extended.write(bytes(styles, 'utf-8'))
