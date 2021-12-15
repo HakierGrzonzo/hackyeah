@@ -33,6 +33,10 @@ default program. *opener.gov* fixes any mistakes (or even malice) the author of 
 
 ## How to install for development:
 
+> **IMPORTANT!**
+> You must clone the repository with the `--recurse-submodules` flag, if you have wierd errors in the 
+> python part and don't recall doing this run `git submodules init` and `git pull`.
+
 You will need to have a modern version of python (with pip) and npm installed.
 
 First run:
@@ -58,5 +62,19 @@ To start the *backend* run `uvicorn opener:app --reload`
 To start the *frontend* run:
 ```
 cd ./front; npm start
+```
+
+# Other Documentation:
+
+[Adobe XD](https://xd.adobe.com/view/56fed978-3d7a-4fca-be20-5d2b281a3855-03ad/grid)
+
+[Drawio Process Diagram](./process.drawio)
+
+# How to build electron app to an executable file:
+
+```bash
+# npm install electron-packager -g
+$ electron-packager front otwieracz --platform=win32 --arch=x64 # for windows
+$ electron-packager front otwieracz --platform=linux --arch=x64 # for gnu/linux
 ```
 
